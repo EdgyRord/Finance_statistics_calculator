@@ -13,6 +13,14 @@ Gui - at first easy
 Phone/mbank/revolut/google pay integration??? - future
 
 
+DATAFRAME STRUCTURE SUGGESTION:
+Input_date,Account, Amount('+' or '-'), Category, Transaction_date, Priority, Comment
+
+Account - all your accounts, with that can transfer money in between
+
+CALCULATIONS:
+Current Balance
+
 Classes - required?
 Amount, Category, Comment (?), Priority :
 Low - own wants, not required for living
@@ -21,6 +29,8 @@ High - absolutely required (Apartment, Bills, Food)
 Is uber-eats required? High or medium?
 
 After inputting, put into excel with current date - do I need hours? very detailed analysis???
+Retroactive
+
 
 Subscritpions - add as they get paid or add *because I remember*?
 
@@ -33,37 +43,43 @@ Gui options :
 - show diagrams
 - calculations - automatically shown
 
-
 """
 #All required imports
 import pandas as pd
 import datetime
+
+#Settings file - will be changed later to not python
 import settings
 
-#Initialize settings variables - change? Init or vars in file approach? Need to be changed during program run?
-#settings.init()
+
+class PaymentsFrame:
+    def __init__(self):
+        self.payments = pd.DataFrame(columns=settings.dataframe_columns)
+
+    def calculate_average(self):
+        print(self.payments['Amount'].mean())
+
+
 def init():
 # Import data from excel
-    data = {'Date':[],'Amount':[],'Category':[],'Priority':[],'Comment':[]}
-
     # Create Dataframe
-    payments = pd.DataFrame(data=data)
+    data = PaymentsFrame()
 
-    #Fill dataframe with data / test data if empty
-    test = pd.DataFrame(data={'Date':[datetime.datetime.now().strftime('%x'),datetime.datetime.now().strftime('%x')],'Amount':[350.00,100.51],'Category':[settings.categories[0],settings.categories[1]],'Priority':['High','Low'],'Comment':['Food ordered','Game :))']})
-    payments = test
+    #Fill dataframe with data / test data if required
+    #payments = payments.append(create_test_data())
+    data.payments = data.payments.append(load_data())
 
-    print(payments)
-
-    save_data(payments)
+    return data
 
 # Input new data to dataframe
-def input_data():
+def input_data(data):
     #input data from user
-
+    input_data = []
     #add data to payments dataframe and save it
-    pass
-# Delete data (?)
+    data = data.payments.append(input_data)
+    return data
+
+# Delete data (?) - Not sure if needed? Modification needed? Who knows...
 def delete_data():
     #select data to be removed
 
@@ -79,10 +95,40 @@ def save_data(data):
         save data to excel
     else:
     '''
-    data.to_csv('data.csv')
+    data.to_csv(settings.data_location)
+
+def create_test_data():
+    test_data = pd.DataFrame(
+    [
+      [1,datetime.datetime.now().strftime('%x'),'MBANK',300,settings.categories[0],datetime.datetime(2021,5,26).strftime('%x'),'Medium','TEST'],
+      [2,datetime.datetime.now().strftime('%x'),'MBANK',310,settings.categories[0],datetime.datetime(2021,5,25).strftime('%x'),'High','TEST']
+    ]
+    ,columns=settings.dataframe_columns)
+    return test_data
+
+def load_data():
+    load_data = pd.read_csv(settings.data_location,index_col=[0])
+    return load_data
+
+def main(data):
+    #Test - print data
+    print(data.payments)
+    #Main loop
+    print('Please select the action you\'d like')
+    #print(settings.available_actions)
+    #action = input()
+
+    data.calculate_average()
+
+    #TBD - selecting data file.
+    #input data
+    input_data(data)
+
+
 
 if __name__ == '__main__':
-    init()
+    data = init()
+    main(data)
 
 
 
