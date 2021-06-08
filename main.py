@@ -1,5 +1,5 @@
 """
-Finance project
+Finance tracker project
 Kamil Bąkała
 
 -Add a amount you spent and which category it was
@@ -32,7 +32,7 @@ After inputting, put into excel with current date - do I need hours? very detail
 Retroactive
 
 
-Subscritpions - add as they get paid or add *because I remember*?
+Subscriptions - add as they get paid or add *because I remember*?
 
 Gui options :
 - Show all ?
@@ -44,92 +44,54 @@ Gui options :
 - calculations - automatically shown
 
 """
-#All required imports
-import pandas as pd
-import datetime
+import payments_frame
+import sys
 
-#Settings file - will be changed later to not python
 import settings
 
 
-class PaymentsFrame:
-    def __init__(self):
-        self.payments = pd.DataFrame(columns=settings.dataframe_columns)
-
-    def calculate_average(self):
-        print(self.payments['Amount'].mean())
-
-
 def init():
-# Import data from excel
+    # Import data from excel
     # Create Dataframe
-    data = PaymentsFrame()
+    data = payments_frame.PaymentsFrame()
 
-    #Fill dataframe with data / test data if required
-    #payments = payments.append(create_test_data())
-    data.payments = data.payments.append(load_data())
+    # Fill dataframe with data / test data if required
+    # data.create_test_data()
+    data.load_data()
 
     return data
 
-# Input new data to dataframe
-def input_data(data):
-    #input data from user
-    input_data = []
-    #add data to payments dataframe and save it
-    data = data.payments.append(input_data)
-    return data
 
-# Delete data (?) - Not sure if needed? Modification needed? Who knows...
-def delete_data():
-    #select data to be removed
+def action_switcher(data, argument):
+    switch = {
+        'E!': data.exit,
+        'E': data.save_and_exit,
+        'I': data.input_data,
+        'S': data.show_data
+    }
+    func = switch.get(argument, lambda: "Incorrect action")
+    return func()
 
-    #delete data from dataframe (safe?)
-    pass
-# Save data to excel
-def save_data(data):
-    #Select excel file - default if not given
-
-    # Save data to excel
-    '''
-    if excel given:
-        save data to excel
-    else:
-    '''
-    data.to_csv(settings.data_location)
-
-def create_test_data():
-    test_data = pd.DataFrame(
-    [
-      [1,datetime.datetime.now().strftime('%x'),'MBANK',300,settings.categories[0],datetime.datetime(2021,5,26).strftime('%x'),'Medium','TEST'],
-      [2,datetime.datetime.now().strftime('%x'),'MBANK',310,settings.categories[0],datetime.datetime(2021,5,25).strftime('%x'),'High','TEST']
-    ]
-    ,columns=settings.dataframe_columns)
-    return test_data
-
-def load_data():
-    load_data = pd.read_csv(settings.data_location,index_col=[0])
-    return load_data
 
 def main(data):
-    #Test - print data
-    print(data.payments)
-    #Main loop
-    print('Please select the action you\'d like')
-    #print(settings.available_actions)
-    #action = input()
 
-    data.calculate_average()
-
-    #TBD - selecting data file.
-    #input data
-    input_data(data)
-
+    # Main loop
+    while True:
+        print('Please select the action you\'d like to perform')
+        print(settings.available_actions)
+        try:
+            user_input = input("Action: ")
+            result = action_switcher(data, user_input)
+            # End if exit called
+            if result == -1:
+                break
+            else:
+                print(result)
+        except KeyboardInterrupt:
+            print("Keyboard interrupt, exiting...")
+            sys.exit()
 
 
 if __name__ == '__main__':
     data = init()
     main(data)
-
-
-
-
