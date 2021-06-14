@@ -3,5 +3,4 @@ Small project to input your income and spendings, to calculate where your money 
 
 
 
-
 by Kamil Bąkała

@@ -1,3 +1,19 @@
+"""
+TO-DO
+load_data
+Create check for empty file and load properly if so.
+input_data
+Create check whether the is data for the ID of transaction
+
+Checks for categories, accounts,
+
+plots
+GUI
+Google drive
+"""
+
+
+
 # All required imports
 import pandas as pd
 import datetime
@@ -11,12 +27,14 @@ class PaymentsFrame:
         self.payments = pd.DataFrame(columns=settings.dataframe_columns)
 
     def show_data(self):
-        print(self.payments)
+        print(self.payments.head())
+        #print(self.payments.dtypes)
         return 0
 
     # Calculate current balance
     def calculate_balance(self):
         print(self.payments['Amount'].sum())
+        return 0
 
     # Calculate balance per month
     def calculate_balance_per_month(self):
@@ -25,7 +43,12 @@ class PaymentsFrame:
         temp_data['Month'] = pd.DatetimeIndex(temp_data['Transaction Date']).month
         temp_data.index = pd.DatetimeIndex(temp_data['Transaction Date'])
         print(temp_data.groupby([temp_data.index.year.values, temp_data.index.month.values])['Amount'].sum())
+        return 0
 
+    def calculate_balance_per_account(self):
+        temp_data = self.payments
+        print(temp_data.groupby([temp_data['Account']])['Amount'].sum())
+        return 0
     # Plot data
     def plot_data(self):
         pass
@@ -36,18 +59,27 @@ class PaymentsFrame:
         # ID, Date, Accout, Amout,Cat,Trans_date,Prio,Comment
         # input data from user
         input_data = []
-        input_data.append(self.payments['ID'].max() + 1)
         input_data.append(datetime.datetime.now().strftime('%x'))
         input_data.append(input("Please input account for the transaction: "))
         input_data.append(input("Please input amount for the transaction: "))
+        print("Available Categories: {}".format(settings.categories))
         input_data.append(input("Please input category of the transaction: "))
-        # input_data.append(input("Please input Transaction date : "))
+        date = input("Please input Transaction date (in format DD/MM/YYYY) : ")
+        input_data.append(datetime.datetime.strptime(date, '%d/%m/%Y').strftime('%x'))
         input_data.append(input("Please input priority of the transaction: "))
         input_data.append(input("Please input additional comments for the transaction: "))
 
         # print(input_data)
         # add data to payments dataframe and save it
-        self.payments = self.payments.append(input_data)
+        input_frame = pd.DataFrame(
+            [
+                input_data
+            ]
+            , columns=settings.dataframe_columns)
+
+        self.payments = self.payments.append(input_frame)
+        self.payments['Amount'] = pd.to_numeric(self.payments['Amount'], downcast='float')
+        self.refresh_data_types()
         return ("Following data inputted: {}".format(input_data))
 
     # Delete data (?) - Not sure if needed? Modification needed? Who knows...
@@ -69,9 +101,15 @@ class PaymentsFrame:
         '''
         self.payments.to_csv(settings.data_location)
 
+    def refresh_data_types(self):
+        self.payments = self.payments.convert_dtypes()
+        self.payments['Input Date'] = pd.to_datetime(self.payments['Input Date'])
+        self.payments['Transaction Date'] = pd.to_datetime(self.payments['Transaction Date'])
+
     # Load data from csv
     def load_data(self):
         self.payments = pd.read_csv(settings.data_location, index_col=[0])
+        self.refresh_data_types()
 
     # Exit program
     def exit(self):
@@ -89,10 +127,11 @@ class PaymentsFrame:
     def create_test_data(self):
         test_data = pd.DataFrame(
             [
-                [1, datetime.datetime.now().strftime('%x'), 'MBANK', 300, settings.categories[0],
+                [datetime.datetime.now().strftime('%x'), 'MBANK', 300, settings.categories[0],
                  datetime.datetime(2021, 5, 26).strftime('%x'), 'Medium', 'TEST'],
-                [2, datetime.datetime.now().strftime('%x'), 'MBANK', 310, settings.categories[0],
+                [datetime.datetime.now().strftime('%x'), 'MBANK', 310, settings.categories[0],
                  datetime.datetime(2021, 5, 25).strftime('%x'), 'High', 'TEST']
             ]
             , columns=settings.dataframe_columns)
+        # print(test_data.head())
         self.payments = test_data

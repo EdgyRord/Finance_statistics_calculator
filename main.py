@@ -46,7 +46,6 @@ Gui options :
 """
 import payments_frame
 import sys
-
 import settings
 
 
@@ -67,7 +66,10 @@ def action_switcher(data, argument):
         'E!': data.exit,
         'E': data.save_and_exit,
         'I': data.input_data,
-        'S': data.show_data
+        'S': data.show_data,
+        'C': data.calculate_balance,
+        'C2': data.calculate_balance_per_month,
+        'C3': data.calculate_balance_per_account
     }
     func = switch.get(argument, lambda: "Incorrect action")
     return func()
@@ -79,17 +81,21 @@ def main(data):
     while True:
         print('Please select the action you\'d like to perform')
         print(settings.available_actions)
+
         try:
             user_input = input("Action: ")
-            result = action_switcher(data, user_input)
+            result = action_switcher(data, user_input.upper())
             # End if exit called
             if result == -1:
                 break
+            elif result == 0:
+                pass
             else:
                 print(result)
         except KeyboardInterrupt:
             print("Keyboard interrupt, exiting...")
             sys.exit()
+        print('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=')
 
 
 if __name__ == '__main__':
