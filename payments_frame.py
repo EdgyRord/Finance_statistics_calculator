@@ -1,11 +1,11 @@
 """
 TO-DO
-load_data
 Create check for empty file and load properly if so.
 input_data
-Create check whether the is data for the ID of transaction
 
 Checks for categories, accounts,
+
+DataFrame structure
 
 plots
 GUI
@@ -15,8 +15,11 @@ Google drive
 
 
 # All required imports
+import tkinter as tk
+from pandastable import Table
 import pandas as pd
 import datetime
+from pandasgui import show
 
 # Settings file - will be changed later to not python
 import settings
@@ -28,7 +31,26 @@ class PaymentsFrame:
 
     def show_data(self):
         print(self.payments.head())
+        print(self.payments.dtypes)
+        return 0
+
+    def show_data_tk(self):
+        root = tk.Tk()
+        root.title('Finances')
+
+        frame = tk.Frame(root)
+        frame.pack(fill='both', expand=True)
+
+        pt = Table(frame, dataframe=self.payments, showtoolbar=True, showstatusbar=True)
+        pt.show()
+
+        root.mainloop()
+        return 0
+
+    def show_data_pgui(self):
+        #print(self.payments.head())
         #print(self.payments.dtypes)
+        show(self.payments)
         return 0
 
     # Calculate current balance
@@ -49,11 +71,17 @@ class PaymentsFrame:
         temp_data = self.payments
         print(temp_data.groupby([temp_data['Account']])['Amount'].sum())
         return 0
+
+    def calculate_spendings_for_entertainment(self):
+        temp_data = self.payments
+        print(temp_data[temp_data['Category'] == 'Entertainment'].sum())
+        return 0
+
     # Plot data
     def plot_data(self):
         pass
 
-    # Input new data to dataframe
+    # Input new data to dataframe - meh
     def input_data(self):
         # Data structure:
         # ID, Date, Accout, Amout,Cat,Trans_date,Prio,Comment
@@ -108,7 +136,7 @@ class PaymentsFrame:
 
     # Load data from csv
     def load_data(self):
-        self.payments = pd.read_csv(settings.data_location, index_col=[0])
+        self.payments = pd.read_csv(settings.data_location)
         self.refresh_data_types()
 
     # Exit program

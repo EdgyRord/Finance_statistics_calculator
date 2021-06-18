@@ -67,9 +67,12 @@ def action_switcher(data, argument):
         'E': data.save_and_exit,
         'I': data.input_data,
         'S': data.show_data,
+        'S!': data.show_data_pgui,
+        'S@': data.show_data_tk,
         'C': data.calculate_balance,
         'C2': data.calculate_balance_per_month,
-        'C3': data.calculate_balance_per_account
+        'C3': data.calculate_balance_per_account,
+        'C4': data.calculate_spendings_for_entertainment
     }
     func = switch.get(argument, lambda: "Incorrect action")
     return func()
